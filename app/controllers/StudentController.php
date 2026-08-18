@@ -17,26 +17,22 @@ class StudentController extends Controller {
         'email' => 'johnclapis24@gmail.com'
     ];
 
+    
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
+
     public function index()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
-
         $_SESSION['student_access'] = true;
-        //unset($_SESSION['student_access']);
         $this->call->view('index');
-        
     }
 
     public function profile()
     {
         $data['student'] = $this->student;
         $this->call->view('profile', $data);
-    }
-
-    public function __construct()
-    {
-        parent::__construct();
     }
 }
