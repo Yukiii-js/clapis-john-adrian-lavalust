@@ -61,6 +61,13 @@
         strong {
             color: #475569;
         }
+        a.social-link {
+            color: #0284c7;
+            text-decoration: none;
+        }
+        a.social-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -82,6 +89,12 @@
             <p><strong>Year Level:</strong> <?= $student['year']; ?></p>
             <p><strong>Section:</strong> <?= $student['section']; ?></p>
             <p><strong>Email:</strong> <?= $student['email']; ?></p>
+            <p><strong>Contact #:</strong> 09958254486</p>
+            <p><strong>Address:</strong> Poblacion, Baco, Oriental Mindoro</p>
+            <p><strong>Skills:</strong> Logic, Programming</p>
+            <p><strong>Hobbies:</strong> Gaming</p>
+            <p><strong>Profile Description:</strong> I am 22 years old, and I'm currently taking BSIT in MinSU Calapan Campus.</p>
+            <p><strong>Social Media:</strong> <a href="https://www.facebook.com/share/18zg79bTT7/" target="_blank" rel="noopener noreferrer" class="social-link">Facebook Profile</a></p>
         </div>
     </div>
 
