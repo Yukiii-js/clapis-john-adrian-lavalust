@@ -41,4 +41,23 @@ defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 | Used for adding middlewares
 |
 */
-$config['middlewares'] = [];
+$config['middlewares'] = [
+    'student' => 'StudentMiddleware'
+];
+
+
+class StudentMiddleware implements MiddlewareInterface {
+    
+    public function run() {
+        // Start session if not already started
+        if (session_status()= === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Check for access permission
+        if (!isset($_SESSION['student_access']) || $_SESSION['student_access'] !== true) {
+            // Redirect to home page if unauthorized
+            redirect('student');
+        }
+    }
+}
