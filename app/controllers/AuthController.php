@@ -6,7 +6,7 @@ class AuthController extends Controller {
     public function __construct() {
         parent::__construct();
         $this->call->library('session');
-        $this->call->model('UserModel'); // Load UserModel
+        $this->call->model('UserModel');
     }
 
     public function login() {
