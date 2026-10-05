@@ -10,10 +10,7 @@ class ProductController_lab6 extends Controller {
     }
 
     private function authenticate() {
-        if (!$this->api->is_authenticated()) {
-            $this->api->respond(['status' => false, 'message' => 'Unauthorized access'], 401);
-            exit();
-        }
+        $this->api->require_jwt();
     }
 
     public function index() {
