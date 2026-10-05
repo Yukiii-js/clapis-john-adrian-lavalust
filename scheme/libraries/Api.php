@@ -204,7 +204,14 @@ class Api
             show_error('jwt_secret and refresh_token_key must be different values.');
         }
 
-        handle_cors();
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+        header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
+
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+        http_response_code(200);
+        exit();
+}
     }
 
     /**
@@ -547,6 +554,43 @@ class Api
      *
      * @return array<string,mixed>
      */
+    public function is_authenticated()
+    {
+        $token = $this->get_bearer_token();
+        if (!$token) {
+            return false;
+        }
+
+        $payload = $this->validate_jwt($token, 'access');
+        if (!$payload) {
+            return false;
+        }
+
+        if (!$this->verify_user) {
+            return true;
+        }
+
+        $stmt = $this->_lava->db->raw(
+            "SELECT id FROM {$this->users_table} WHERE id = ? LIMIT 1",
+            [$payload['sub']]
+        );
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return (bool) $user;
+    }
+
+    /**
+     * authenticated
+     *
+     * Backward-compatible alias used by older controllers.
+     *
+     * @return bool
+     */
+    public function authenticated()
+    {
+        return $this->is_authenticated();
+    }
+
     public function require_jwt()
     {
         $token = $this->get_bearer_token();

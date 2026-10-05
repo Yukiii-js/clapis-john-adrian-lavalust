@@ -2,11 +2,18 @@
 defined('PREVENT_DIRECT_ACCESS') OR exit('No direct script access allowed');
 
 class ProductController_lab6 extends Controller {
+
     public function __construct() {
         parent::__construct();
         $this->call->library('api');
         $this->call->model('Product_model');
-        $this->call->model('Auth_model');
+    }
+
+    private function authenticate() {
+        if (!$this->api->is_authenticated()) {
+            $this->api->respond(['status' => false, 'message' => 'Unauthorized access'], 401);
+            exit();
+        }
     }
 
     public function index() {
@@ -23,7 +30,6 @@ class ProductController_lab6 extends Controller {
         }
         return $this->api->respond(['status' => false, 'message' => 'Product not found'], 404);
     }
-
 
     public function create() {
         $this->authenticate();
@@ -42,16 +48,15 @@ class ProductController_lab6 extends Controller {
         return $this->api->respond(['status' => false, 'message' => 'Failed to create product'], 500);
     }
 
-
     public function update($id) {
         $this->authenticate();
         $data = json_decode(file_get_contents('php://input'), true);
 
         $updateData = [
-            'product_name' => $data['product_name'],
-            'description'  => $data['description'],
-            'price'        => $data['price'],
-            'quantity'     => $data['quantity'],
+            'product_name' => $data['product_name'] ?? '',
+            'description'  => $data['description'] ?? '',
+            'price'        => $data['price'] ?? 0.00,
+            'quantity'     => $data['quantity'] ?? 0,
         ];
 
         if ($this->Product_model->update($id, $updateData)) {
@@ -60,7 +65,7 @@ class ProductController_lab6 extends Controller {
         return $this->api->respond(['status' => false, 'message' => 'Failed to update product'], 500);
     }
 
-   
+
     public function delete($id) {
         $this->authenticate();
         if ($this->Product_model->delete($id)) {
