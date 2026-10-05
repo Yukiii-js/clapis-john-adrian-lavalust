@@ -204,7 +204,14 @@ class Api
             show_error('jwt_secret and refresh_token_key must be different values.');
         }
 
-        handle_cors();
+        $this->handle_cors();
+    }
+
+    private function handle_cors()
+    {
+        header('Access-Control-Allow-Origin: ' . ($this->allow_origin ?: '*'));
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+        header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
     }
 
     /**
@@ -384,6 +391,7 @@ class Api
      */
     public function respond($data, $code = 200)
     {
+        header('Content-Type: application/json; charset=UTF-8');
         http_response_code($code);
         echo json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         exit;

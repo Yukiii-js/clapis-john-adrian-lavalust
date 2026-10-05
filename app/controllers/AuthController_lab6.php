@@ -5,46 +5,93 @@ class AuthController_lab6 extends Controller {
     public function __construct() {
         parent::__construct();
         $this->call->library('api');
-        $this->call->model('Auth_model'); 
+        $this->call->model('UserModel');
     }
 
     public function login() {
-    $data = json_decode(file_get_contents('php://input'), true);
-    $username = $data['username'] ?? '';
-    $password = $data['password'] ?? '';
+        $data = $this->read_json_body();
+        $username = trim((string) ($data['username'] ?? ''));
+        $password = (string) ($data['password'] ?? '');
+        $user = $this->UserModel->get_user_by_username($username);
 
-  
-    $user = $this->db->table('users')->where('username', $username)->get();
+        if ($user && password_verify($password, $user['password'])) {
+            $tokens = $this->api->issue_tokens([
+                'id' => $user['id'],
+                'role' => $user['role'],
+            ]);
 
-    if ($user && password_verify($password, $user['password'])) {
-   
-        $token = $this->api->generate_token($user['id']);
-
-        return $this->api->respond([
-            'status' => true,
-            'message' => 'Login successful',
-            'token' => $token
-        ], 200);
-    }
-
-    return $this->api->respond([
-        'status' => false,
-        'message' => 'Invalid username or password'
-    ], 401);
-}
-
-    private function authenticate() {
-    $headers = getallheaders();
-    $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-
-    if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-        $token = $matches[1];
-        if ($this->Auth_model->check_token($token)) {
-            return true;
+            $this->api->respond([
+                'status' => true,
+                'message' => 'Login successful',
+                'user' => [
+                    'id' => $user['id'],
+                    'username' => $user['username'],
+                    'email' => $user['email'],
+                    'role' => $user['role'],
+                ],
+                'tokens' => $tokens,
+            ], 200);
         }
+
+        $this->api->respond([
+            'status' => false,
+            'message' => 'Invalid username or password',
+        ], 401);
     }
 
-    $this->api->respond(['status' => false, 'message' => 'Unauthorized access'], 401);
-    exit();
-}
+    public function register() {
+        $data = $this->read_json_body();
+        $username = trim((string) ($data['username'] ?? ''));
+        $email = trim((string) ($data['email'] ?? ''));
+        $password = (string) ($data['password'] ?? '');
+
+        if ($username === '' || strlen($username) > 100) {
+            $this->api->respond_error('A username of 1 to 100 characters is required.', 422);
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 255) {
+            $this->api->respond_error('A valid email address is required.', 422);
+        }
+
+        if (strlen($password) < 8) {
+            $this->api->respond_error('Password must be at least 8 characters long.', 422);
+        }
+
+        if ($this->UserModel->get_user_by_username($username)
+            || $this->UserModel->get_user_by_email($email)) {
+            $this->api->respond_error('Username or email is already registered.', 409);
+        }
+
+        $created = $this->UserModel->create_user([
+            'username' => $username,
+            'email' => $email,
+            'password' => password_hash($password, PASSWORD_DEFAULT),
+            'role' => 'user',
+        ]);
+
+        if (!$created) {
+            $this->api->respond_error('Unable to create the account.', 500);
+        }
+
+        $this->api->respond([
+            'status' => true,
+            'message' => 'Account created successfully.',
+            'user' => [
+                'username' => $username,
+                'email' => $email,
+                'role' => 'user',
+            ],
+        ], 201);
+    }
+
+    private function read_json_body() {
+        $body = file_get_contents('php://input');
+        $data = json_decode($body, true);
+
+        if (!is_array($data)) {
+            $this->api->respond_error('Request body must be a valid JSON object.', 400);
+        }
+
+        return $data;
+    }
 }

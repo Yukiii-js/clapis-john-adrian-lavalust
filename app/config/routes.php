@@ -68,6 +68,7 @@ $router->get('refresh', 'MigrationController::refresh');
 $router->get('status', 'MigrationController::status');
 
 $router->post('api/login', 'AuthController_lab6::login');
+$router->post('api/create', 'AuthController_lab6::register');
 
 $router->get('api/products', 'ProductController_lab6::index');
 $router->get('api/products/{id}', 'ProductController_lab6::show');
