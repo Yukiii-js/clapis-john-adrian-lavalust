@@ -10,7 +10,14 @@ class ProductController_lab6 extends Controller {
     }
 
     private function authenticate() {
-        $this->api->require_jwt();
+        return $this->api->require_jwt();
+    }
+
+    private function authorize_scope($required_scope) {
+        $user = $this->authenticate();
+        if (!in_array($required_scope, $user['scopes'] ?? [], true)) {
+            $this->api->respond_error('Forbidden: insufficient permissions.', 403);
+        }
     }
 
     public function index() {
@@ -29,7 +36,7 @@ class ProductController_lab6 extends Controller {
     }
 
     public function create() {
-        $this->authenticate();
+        $this->authorize_scope('write');
         $data = json_decode(file_get_contents('php://input'), true);
 
         $insertData = [
@@ -46,7 +53,7 @@ class ProductController_lab6 extends Controller {
     }
 
     public function update($id) {
-        $this->authenticate();
+        $this->authorize_scope('write');
         $data = json_decode(file_get_contents('php://input'), true);
 
         $updateData = [
@@ -64,7 +71,7 @@ class ProductController_lab6 extends Controller {
 
 
     public function delete($id) {
-        $this->authenticate();
+        $this->authorize_scope('delete');
         if ($this->Product_model->delete($id)) {
             return $this->api->respond(['status' => true, 'message' => 'Product deleted successfully'], 200);
         }
