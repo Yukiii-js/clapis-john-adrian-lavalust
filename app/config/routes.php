@@ -59,3 +59,18 @@ $router->post('/products/store', 'ProductController::store');
 $router->get('/products/edit/{id}', 'ProductController::edit');
 $router->post('/products/update/{id}', 'ProductController::update');
 $router->get('/products/delete/{id}', 'ProductController::delete');
+
+$router->get('create-migration/{migration_class}', 'MigrationController::create_migration');
+$router->get('migrate', 'MigrationController::migrate');
+$router->get('rollback', 'MigrationController::rollback');
+$router->get('rollback-all', 'MigrationController::rollback_all');
+$router->get('refresh', 'MigrationController::refresh');
+$router->get('status', 'MigrationController::status');
+
+$router->post('api/login', 'AuthController_lab6::login');
+
+$router->get('api/products', 'ProductController_lab6::index');
+$router->get('api/products/{id}', 'ProductController_lab6::show');
+$router->post('api/products', 'ProductController_lab6::create');
+$router->put('api/products/{id}', 'ProductController_lab6::update');
+$router->delete('api/products/{id}', 'ProductController_lab6::delete');

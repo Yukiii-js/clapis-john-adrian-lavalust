@@ -63,11 +63,14 @@ $database['main'] = array(
     'port'		=> getenv('DB_PORT') ?: '11866',
     'username'	=> getenv('DB_USERNAME') ?: 'avnadmin',
     'password'	=> getenv('DB_PASSWORD') ?: 'AVNS_hypYJFkYEu10ySheW3Q',
-    'database'	=> getenv('DB_NAME') ?: 'crud',
+    'database'	=> getenv('DB_NAME') ?: 'products_sys',
     'charset'	=> '',
     'dbprefix'	=> '',
-    // Optional for SQLite 
-    'path'      => ''
+    'path'      => '',
+    'options'  => array(
+        PDO::MYSQL_ATTR_SSL_CA => APP_DIR . 'config/ca.pem',
+        PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+    )
 );
 
 ?>
