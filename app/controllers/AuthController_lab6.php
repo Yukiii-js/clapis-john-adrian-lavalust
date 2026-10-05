@@ -9,31 +9,29 @@ class AuthController_lab6 extends Controller {
     }
 
     public function login() {
-        $raw = file_get_contents('php://input');
-        $data = json_decode($raw, true);
+    $data = json_decode(file_get_contents('php://input'), true);
+    $username = $data['username'] ?? '';
+    $password = $data['password'] ?? '';
 
-        $username = $data['username'] ?? '';
-        $password = $data['password'] ?? '';
+  
+    $user = $this->db->table('users')->where('username', $username)->get();
 
-        $user = $this->Auth_model->verify_user($username, $password);
-
-        if ($user) {
-            $token = base64_encode(random_bytes(32));
-            $this->Auth_model->save_token($user['id'], $token);
-
-            return $this->api->respond([
-                'status' => true,
-                'message' => 'Login successful',
-                'token' => $token,
-                'user' => [ 'id' => $user['id'], 'username' => $user['username'] ]
-            ], 200);
-        }
+    if ($user && password_verify($password, $user['password'])) {
+   
+        $token = $this->api->generate_token($user['id']);
 
         return $this->api->respond([
-            'status' => false,
-            'message' => 'Invalid credentials'
-        ], 401);
+            'status' => true,
+            'message' => 'Login successful',
+            'token' => $token
+        ], 200);
     }
+
+    return $this->api->respond([
+        'status' => false,
+        'message' => 'Invalid username or password'
+    ], 401);
+}
 
     private function authenticate() {
     $headers = getallheaders();
