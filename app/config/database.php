@@ -67,10 +67,10 @@ $database['main'] = array(
     'charset'	=> '',
     'dbprefix'	=> '',
     'path'      => '',
-    'options'  => array(
-        PDO::MYSQL_ATTR_SSL_CA => APP_DIR . 'config/ca.pem',
-        PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-    )
+//     'options' => array(
+//     (defined('Pdo\Mysql::ATTR_SSL_CA') ? Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA) => APP_DIR . 'config/ca.pem',
+//     (defined('Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT') ? Pdo\Mysql::ATTR_SSL_VERIFY_SERVER_CERT : PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT) => false,
+// )
 );
 
 ?>
